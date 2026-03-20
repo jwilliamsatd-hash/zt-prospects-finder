@@ -1,0 +1,18 @@
+[
+  {"id":"pg-1","name":"PG Spring Kickoff Classic","association":"Perfect Game","date":"2025-04-05","endDate":"2025-04-06","city":"Dallas","state":"TX","ages":["10U","11U","12U"],"fee":495,"link":"https://www.perfectgame.org"},
+  {"id":"pg-2","name":"PG Elite Spring Showcase","association":"Perfect Game","date":"2025-04-12","endDate":"2025-04-13","city":"Atlanta","state":"GA","ages":["13U","14U","15U"],"fee":595,"link":"https://www.perfectgame.org"},
+  {"id":"pg-3","name":"PG National Qualifier","association":"Perfect Game","date":"2025-05-17","endDate":"2025-05-18","city":"Orlando","state":"FL","ages":["12U","13U","14U","15U"],"fee":650,"link":"https://www.perfectgame.org"},
+  {"id":"pg-4","name":"PG Summer Invitational","association":"Perfect Game","date":"2025-06-28","endDate":"2025-06-29","city":"Dallas","state":"TX","ages":["15U","16U","17U"],"fee":675,"link":"https://www.perfectgame.org"},
+  {"id":"usssa-1","name":"USSSA Blue Monster","association":"USSSA","date":"2025-04-19","endDate":"2025-04-20","city":"Nashville","state":"TN","ages":["10U","11U","12U","13U"],"fee":425,"link":"https://www.usssa.com"},
+  {"id":"usssa-2","name":"USSSA Spring Championship","association":"USSSA","date":"2025-05-03","endDate":"2025-05-04","city":"Houston","state":"TX","ages":["9U","10U","11U"],"fee":375,"link":"https://www.usssa.com"},
+  {"id":"usssa-3","name":"USSSA Power Series","association":"USSSA","date":"2025-05-24","endDate":"2025-05-25","city":"Charlotte","state":"NC","ages":["14U","15U","16U"],"fee":475,"link":"https://www.usssa.com"},
+  {"id":"usssa-4","name":"USSSA Stars & Stripes","association":"USSSA","date":"2025-07-04","endDate":"2025-07-06","city":"Tampa","state":"FL","ages":["10U","11U","12U","13U","14U"],"fee":525,"link":"https://www.usssa.com"},
+  {"id":"gmb-1","name":"GMB Spring Fling","association":"GMB","date":"2025-04-26","endDate":"2025-04-27","city":"Kansas City","state":"MO","ages":["10U","11U","12U"],"fee":350,"link":"https://www.gmbbattlezone.com"},
+  {"id":"gmb-2","name":"GMB Battle Zone Classic","association":"GMB","date":"2025-05-10","endDate":"2025-05-11","city":"Chicago","state":"IL","ages":["13U","14U"],"fee":400,"link":"https://www.gmbbattlezone.com"},
+  {"id":"ripken-1","name":"Ripken Spring Classic","association":"Ripken Experience","date":"2025-04-12","endDate":"2025-04-14","city":"Aberdeen","state":"MD","ages":["10U","11U","12U"],"fee":725,"link":"https://www.ripkenbaseball.com"},
+  {"id":"ripken-2","name":"Ripken Pigeon Forge Experience","association":"Ripken Experience","date":"2025-05-23","endDate":"2025-05-25","city":"Pigeon Forge","state":"TN","ages":["9U","10U","11U","12U","13U"],"fee":795,"link":"https://www.ripkenbaseball.com"},
+  {"id":"game7-1","name":"Game7 Spring Showdown","association":"Game7","date":"2025-04-19","endDate":"2025-04-20","city":"San Antonio","state":"TX","ages":["10U","11U","12U","13U"],"fee":395,"link":"https://www.game7sports.com"},
+  {"id":"game7-2","name":"Game7 Diamond Classic","association":"Game7","date":"2025-05-17","endDate":"2025-05-18","city":"Austin","state":"TX","ages":["14U","15U","16U"],"fee":450,"link":"https://www.game7sports.com"},
+  {"id":"playlocal-1","name":"PlayLocal Spring Open","association":"PlayLocal","date":"2025-04-05","endDate":"2025-04-06","city":"Los Angeles","state":"CA","ages":["9U","10U","11U"],"fee":325,"link":"https://www.playlocalsports.com"},
+  {"id":"playlocal-2","name":"PlayLocal Regional Classic","association":"PlayLocal","date":"2025-05-10","endDate":"2025-05-11","city":"Phoenix","state":"AZ","ages":["12U","13U","14U"],"fee":350,"link":"https://www.playlocalsports.com"}
+]

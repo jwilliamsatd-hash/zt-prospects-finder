@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>ZT Prospects – Tournament Finder</title>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#c9a84c"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="ZT Finder"/>
+<link rel="apple-touch-icon" href="/icon-192.png"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{--gold:#c9a84c;--navy:#0d1b2a;--navy2:#1a3a5c;--text:#f0ead6;--muted:#8aaccc;--card:rgba(255,255,255,.05);--border:rgba(255,255,255,.1);--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:Georgia,serif;background:var(--navy);color:var(--text);display:flex;flex-direction:column;padding-top:var(--safe-top)}
+  a{text-decoration:none;color:inherit}
+  button{font-family:sans-serif;cursor:pointer}
+
+  .header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);border-bottom:2px solid var(--gold);padding:12px 16px 10px;flex-shrink:0}
+  .header-inner{display:flex;align-items:center;gap:12px}
+  .logo{background:var(--gold);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .header-text{flex:1;min-width:0}
+  .header-sub{font-family:sans-serif;font-size:9px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+  .header-h1{font-size:20px;font-weight:bold;color:var(--text)}
+  .header-meta{font-family:sans-serif;font-size:11px;color:var(--muted)}
+  .view-btns{display:flex;gap:8px}
+  .view-btn{padding:7px 16px;border-radius:6px;border:none;font-family:sans-serif;font-size:12px;font-weight:600;background:rgba(255,255,255,.1);color:var(--text);transition:all .2s}
+  .view-btn.active{background:var(--gold);color:var(--navy)}
+
+  .install-banner{background:linear-gradient(90deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border-bottom:1px solid rgba(201,168,76,.3);padding:10px 16px;display:flex;align-items:center;gap:10px;font-family:sans-serif;font-size:13px;flex-shrink:0}
+  .install-banner.hidden{display:none}
+  .install-btn{padding:6px 14px;background:var(--gold);color:var(--navy);border:none;border-radius:20px;font-size:12px;font-weight:700}
+  .install-dismiss{margin-left:auto;background:none;border:none;color:var(--muted);font-size:18px;padding:2px 8px}
+
+  .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy2);border-top:1px solid var(--border);padding:8px 0;padding-bottom:calc(8px + var(--safe-bottom));z-index:100}
+  .bottom-nav-inner{display:flex;justify-content:space-around}
+  .nav-tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 20px;background:none;border:none;color:var(--muted);font-size:10px;font-family:sans-serif;transition:color .2s}
+  .nav-tab.active{color:var(--gold)}
+  .nav-tab-icon{font-size:22px}
+
+  .app-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .main{padding:14px 14px 90px}
+
+  .status-bar{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:7px 12px;margin-bottom:12px;font-family:sans-serif;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:#057a55;flex-shrink:0}
+  .status-dot.refreshing{background:var(--gold);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  .filter-toggle{width:100%;padding:10px 14px;background:var(--card);border:1px solid rgba(201,168,76,.3);border-radius:10px;color:var(--text);font-family:sans-serif;font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .filter-arrow{transition:transform .2s;font-size:10px;color:var(--gold)}
+  .filter-arrow.open{transform:rotate(180deg)}
+  .filters{background:var(--card);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:14px;margin-bottom:12px;display:none;flex-direction:column;gap:10px}
+  .filters.open{display:flex}
+  .filter-group{display:flex;flex-direction:column;gap:4px}
+  .filter-label{font-family:sans-serif;font-size:9px;letter-spacing:.15em;color:var(--gold);text-transform:uppercase}
+  .filter-input{padding:9px 10px;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:sans-serif;font-size:15px;-webkit-appearance:none;width:100%}
+  select.filter-input{background:#162e45}
+  .filter-input::placeholder{color:#4a6a8a}
+  .filter-row{display:flex;gap:8px}
+  .filter-row .filter-group{flex:1}
+  .fav-btn-filter{padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;white-space:nowrap;transition:all .2s}
+  .fav-btn-filter.active{border-color:var(--gold);background:rgba(201,168,76,.2);color:var(--gold)}
+  .reset-btn{padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px}
+  .filter-actions{display:flex;gap:8px}
+
+  .results-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .results-count{font-family:sans-serif;font-size:12px;color:var(--muted)}
+  .results-count span{color:var(--gold);font-weight:700;font-size:15px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px}
+  .legend-item{display:flex;align-items:center;gap:4px;font-family:sans-serif;font-size:10px;color:var(--muted)}
+  .legend-dot{width:7px;height:7px;border-radius:50%}
+
+  #list-view{display:flex;flex-direction:column;gap:10px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .card-top{display:flex;gap:12px;align-items:flex-start}
+  .date-block{text-align:center;min-width:48px;background:rgba(201,168,76,.12);border-radius:8px;padding:6px 4px;border:1px solid rgba(201,168,76,.25);flex-shrink:0}
+  .date-mon{font-family:sans-serif;font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.1em}
+  .date-day{font-family:sans-serif;font-size:20px;font-weight:700;color:var(--text);line-height:1}
+  .card-info{flex:1;min-width:0}
+  .card-name{font-weight:700;font-size:15px;color:var(--text);margin-bottom:4px;line-height:1.3}
+  .card-meta{font-family:sans-serif;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .card-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .age-tags{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+  .age-tag{font-family:sans-serif;font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.07);color:#c9d4e0;border:1px solid var(--border)}
+  .fee-pill{font-family:sans-serif;font-size:15px;font-weight:700;color:var(--gold);white-space:nowrap}
+  .card-actions{display:flex;gap:8px;margin-left:auto}
+  .star-btn{padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:18px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+  .star-btn.saved{border-color:var(--gold);background:rgba(201,168,76,.15);color:var(--gold)}
+  .reg-btn{padding:8px 16px;border-radius:8px;border:none;color:#fff;font-family:sans-serif;font-size:13px;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+
+  .empty{text-align:center;padding:50px 20px;color:var(--muted);font-family:sans-serif}
+  .empty-icon{font-size:40px;margin-bottom:12px}
+  .skeleton{background:rgba(255,255,255,.04);border-radius:12px;height:110px;animation:shimmer 1.5s infinite;margin-bottom:10px}
+  @keyframes shimmer{0%,100%{opacity:.3}50%{opacity:.7}}
+
+  #map-view{display:none;flex-direction:column;gap:12px}
+  .map-container{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative}
+  .map-hint{font-family:sans-serif;font-size:11px;color:#3a5a7c;margin-top:8px;text-align:center}
+  .map-sidebar{display:flex;flex-direction:column;gap:8px}
+  .mini-card{background:var(--card);border-radius:10px;padding:12px}
+  .mini-name{font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px}
+  .mini-meta{font-family:sans-serif;font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+  .mini-actions{display:flex;gap:8px}
+  .mini-star{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:15px;min-height:36px;transition:all .2s}
+  .mini-star.saved{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1)}
+  .mini-reg{padding:6px 14px;border-radius:8px;border:none;color:#fff;font-family:sans-serif;font-size:12px;font-weight:600;min-height:36px;display:inline-flex;align-items:center}
+  .map-tooltip{position:absolute;top:12px;right:12px;background:#0d2033;border:1px solid rgba(201,168,76,.5);border-radius:10px;padding:12px;max-width:220px;z-index:10;pointer-events:none;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+  .map-tooltip.visible{display:block}
+  .tooltip-title{font-family:sans-serif;font-weight:700;color:var(--gold);margin-bottom:8px;font-size:13px}
+  .tooltip-item{margin-bottom:5px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.07)}
+  .tooltip-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .tooltip-name{font-family:sans-serif;font-size:11px;color:var(--text);font-weight:600}
+  .tooltip-sub{font-family:sans-serif;font-size:10px;color:var(--muted)}
+
+  .footer{text-align:center;padding:16px;font-family:sans-serif;font-size:10px;color:#3a5a7c;border-top:1px solid rgba(255,255,255,.05)}
+
+  @media(max-width:640px){
+    .view-btns{display:none}
+    .bottom-nav{display:block}
+    .legend{display:none}
+    .main{padding:12px 12px 90px}
+  }
+  @media(min-width:641px){
+    .filters{display:flex!important;flex-direction:row;flex-wrap:wrap;align-items:flex-end}
+    .filter-toggle{display:none}
+    .filter-row{flex:1 1 auto}
+    #map-view{flex-direction:row}
+    .map-container{flex:1}
+    .map-sidebar{width:300px;max-height:520px;overflow-y:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">⚾</div>
+    <div class="header-text">
+      <div class="header-sub">ZT Prospects</div>
+      <div class="header-h1">Tournament Finder</div>
+      <div class="header-meta" id="header-meta">Loading...</div>
+    </div>
+    <div class="view-btns">
+      <button class="view-btn active" id="btn-list" onclick="switchView('list')">☰ List</button>
+      <button class="view-btn" id="btn-map" onclick="switchView('map')">🗺 Map</button>
+    </div>
+  </div>
+</div>
+
+<div class="install-banner hidden" id="install-banner">
+  <span>⚾</span>
+  <div style="font-family:sans-serif;color:var(--text);flex:1"><strong id="install-title">Add to Home Screen</strong><br/><span id="install-sub" style="font-size:11px;color:var(--muted)">Access ZT Finder like a real app</span></div>
+  <button class="install-btn" id="install-btn" onclick="installApp()">Install</button>
+  <button class="install-dismiss" onclick="dismissInstall()">✕</button>
+</div>
+
+<div class="app-body">
+  <div class="main">
+    <div class="status-bar">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Connecting...</span>
+    </div>
+
+    <button class="filter-toggle" onclick="toggleFilters()">
+      <span>🔍 Filters &amp; Search</span>
+      <span class="filter-arrow" id="filter-arrow">▼</span>
+    </button>
+
+    <div class="filters" id="filters-panel">
+      <div class="filter-group">
+        <label class="filter-label">Search</label>
+        <input class="filter-input" id="f-search" placeholder="Tournament name or city..." oninput="applyFilters()"/>
+      </div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">Association</label>
+          <select class="filter-input" id="f-assoc" onchange="applyFilters()">
+            <option>All</option><option>Perfect Game</option><option>USSSA</option>
+            <option>GMB</option><option>Ripken Experience</option><option>Game7</option><option>PlayLocal</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Age Group</label>
+          <select class="filter-input" id="f-age" onchange="applyFilters()">
+            <option>All</option><option>8U</option><option>9U</option><option>10U</option>
+            <option>11U</option><option>12U</option><option>13U</option><option>14U</option>
+            <option>15U</option><option>16U</option><option>17U</option><option>18U</option>
+          </select>
+        </div>
+        <div class="filter-group" style="max-width:75px">
+          <label class="filter-label">State</label>
+          <input class="filter-input" id="f-state" placeholder="TX" maxlength="2" oninput="applyFilters()" style="text-transform:uppercase"/>
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">From Date</label>
+          <input class="filter-input" type="date" id="f-from" onchange="applyFilters()" style="color-scheme:dark"/>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">To Date</label>
+          <input class="filter-input" type="date" id="f-to" onchange="applyFilters()" style="color-scheme:dark"/>
+        </div>
+        <div class="filter-group" style="max-width:95px">
+          <label class="filter-label">Max Fee $</label>
+          <input class="filter-input" type="number" id="f-fee" placeholder="999" oninput="applyFilters()"/>
+        </div>
+      </div>
+      <div class="filter-actions">
+        <button class="fav-btn-filter" id="fav-filter-btn" onclick="toggleFavFilter()">★ Saved (<span id="fav-count">0</span>)</button>
+        <button class="reset-btn" onclick="resetFilters()">Reset All</button>
+      </div>
+    </div>
+
+    <div class="results-bar">
+      <div class="results-count"><span id="result-count">0</span> tournaments</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1a56db"></div>Perfect Game</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e02424"></div>USSSA</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#057a55"></div>GMB</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7e3af2"></div>Ripken</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ff5a1f"></div>Game7</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0694a2"></div>PlayLocal</div>
+      </div>
+    </div>
+
+    <div id="list-view"></div>
+
+    <div id="map-view">
+      <div class="map-container">
+        <svg id="usa-map" viewBox="0 0 920 570" style="width:100%;height:auto"></svg>
+        <div class="map-hint">Tap a highlighted state to see tournaments</div>
+        <div class="map-tooltip" id="map-tooltip"></div>
+      </div>
+      <div class="map-sidebar" id="map-sidebar"></div>
+    </div>
+
+    <div class="footer">ZT Prospects · Data refreshed daily · Always verify details before registering</div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-tab active" id="nav-list" onclick="switchView('list')"><span class="nav-tab-icon">☰</span><span>List</span></button>
+    <button class="nav-tab" id="nav-map" onclick="switchView('map')"><span class="nav-tab-icon">🗺</span><span>Map</span></button>
+    <button class="nav-tab" id="nav-saved" onclick="toggleFavFilter()"><span class="nav-tab-icon">★</span><span>Saved</span></button>
+  </div>
+</div>
+
+<script>
+const COLORS={"Perfect Game":"#1a56db","USSSA":"#e02424","GMB":"#057a55","Ripken Experience":"#7e3af2","Game7":"#ff5a1f","PlayLocal":"#0694a2"};
+const STATE_POS={AL:{x:590,y:390},AZ:{x:200,y:350},AR:{x:530,y:370},CA:{x:110,y:310},CO:{x:270,y:290},FL:{x:640,y:450},GA:{x:630,y:400},IL:{x:560,y:270},IN:{x:580,y:280},IA:{x:510,y:255},KS:{x:440,y:310},KY:{x:600,y:310},LA:{x:530,y:420},MD:{x:740,y:265},MI:{x:590,y:230},MN:{x:490,y:200},MS:{x:560,y:400},MO:{x:520,y:310},MT:{x:240,y:185},NE:{x:420,y:265},NV:{x:160,y:285},NJ:{x:752,y:240},NM:{x:265,y:370},NY:{x:730,y:210},NC:{x:685,y:320},ND:{x:415,y:195},OH:{x:635,y:270},OK:{x:440,y:355},OR:{x:140,y:220},PA:{x:700,y:240},SC:{x:670,y:360},SD:{x:415,y:225},TN:{x:590,y:345},TX:{x:420,y:410},UT:{x:215,y:290},VA:{x:700,y:290},WA:{x:155,y:185},WV:{x:665,y:280},WI:{x:545,y:225},WY:{x:275,y:235},AK:{x:150,y:500},HI:{x:300,y:510},ME:{x:790,y:170},NH:{x:775,y:185},VT:{x:760,y:185},MA:{x:775,y:200},RI:{x:778,y:212},CT:{x:760,y:210},DE:{x:750,y:255},ID:{x:200,y:210}};
+
+let allTournaments=[],favorites=new Set(JSON.parse(localStorage.getItem('zt-favorites')||'[]'));
+let showFavOnly=false,currentView='list',filtersOpen=false,deferredPrompt=null;
+
+// PWA install
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  setTimeout(()=>{if(!localStorage.getItem('zt-dismissed'))document.getElementById('install-banner').classList.remove('hidden');},3000);
+});
+async function installApp(){if(!deferredPrompt)return;deferredPrompt.prompt();const r=await deferredPrompt.userChoice;if(r.outcome==='accepted')dismissInstall();deferredPrompt=null;}
+function dismissInstall(){document.getElementById('install-banner').classList.add('hidden');localStorage.setItem('zt-dismissed','1');}
+window.addEventListener('appinstalled',()=>document.getElementById('install-banner').classList.add('hidden'));
+// iOS hint
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.navigator.standalone){
+  setTimeout(()=>{
+    if(!localStorage.getItem('zt-dismissed')){
+      document.getElementById('install-title').textContent='Add to Home Screen';
+      document.getElementById('install-sub').textContent='Tap Share ↑ then "Add to Home Screen"';
+      document.getElementById('install-btn').style.display='none';
+      document.getElementById('install-banner').classList.remove('hidden');
+    }
+  },3000);
+}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');
+
+function toggleFilters(){filtersOpen=!filtersOpen;document.getElementById('filters-panel').classList.toggle('open',filtersOpen);document.getElementById('filter-arrow').classList.toggle('open',filtersOpen);}
+function saveFavorites(){localStorage.setItem('zt-favorites',JSON.stringify([...favorites]));}
+function fmtDate(d){if(!d)return'TBD';return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function fmtMon(d){if(!d)return'?';return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short'});}
+function fmtDay(d){if(!d)return'?';return new Date(d+'T12:00:00').getDate();}
+function timeAgo(iso){const d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<2)return'just now';if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
+
+async function fetchTournaments(){
+  showLoading();
+  try{
+    const data=await(await fetch('/api/tournaments')).json();
+    allTournaments=data.tournaments||[];
+    const dot=document.getElementById('status-dot'),st=document.getElementById('status-text');
+    if(data.isRefreshing){dot.className='status-dot refreshing';st.textContent='Refreshing live data...';}
+    else if(data.lastUpdated){dot.className='status-dot';st.textContent='Live · Updated '+timeAgo(data.lastUpdated);}
+    else{dot.className='status-dot';st.textContent='Showing cached data';}
+    const ac=new Set(allTournaments.map(t=>t.association)).size;
+    document.getElementById('header-meta').textContent=allTournaments.length+' tournaments · '+ac+' associations';
+    document.getElementById('fav-count').textContent=favorites.size;
+    applyFilters();
+  }catch(e){
+    document.getElementById('status-text').textContent='Could not connect';
+    document.getElementById('status-dot').style.background='#e02424';
+    document.getElementById('list-view').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><p>Could not load data. Is the server running?</p></div>';
+  }
+}
+function showLoading(){document.getElementById('list-view').innerHTML=[1,2,3,4].map(()=>'<div class="skeleton"></div>').join('');}
+
+function getFiltered(){
+  const s=document.getElementById('f-search').value.toLowerCase(),
+    as=document.getElementById('f-assoc').value,ag=document.getElementById('f-age').value,
+    st=document.getElementById('f-state').value.toUpperCase(),
+    fr=document.getElementById('f-from').value,to=document.getElementById('f-to').value,
+    fe=document.getElementById('f-fee').value;
+  return allTournaments.filter(t=>{
+    if(s&&!t.name?.toLowerCase().includes(s)&&!t.city?.toLowerCase().includes(s))return false;
+    if(as!=='All'&&t.association!==as)return false;
+    if(ag!=='All'&&!t.ages?.includes(ag))return false;
+    if(st&&t.state?.toUpperCase()!==st)return false;
+    if(fr&&t.date<fr)return false;
+    if(to&&t.date>to)return false;
+    if(fe&&t.fee&&t.fee>parseInt(fe))return false;
+    if(showFavOnly&&!favorites.has(t.id))return false;
+    return true;
+  });
+}
+function applyFilters(){const f=getFiltered();document.getElementById('result-count').textContent=f.length;currentView==='list'?renderList(f):renderMap(f);}
+
+function renderList(filtered){
+  const el=document.getElementById('list-view');
+  if(!filtered.length){el.innerHTML='<div class="empty"><div class="empty-icon">⚾</div><p>No tournaments match your filters.</p><button onclick="resetFilters()" style="margin-top:12px;padding:10px 22px;border-radius:8px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-family:sans-serif;font-size:14px;cursor:pointer">Clear Filters</button></div>';return;}
+  el.innerHTML=filtered.map(t=>`
+    <div class="card" style="border-left:4px solid ${COLORS[t.association]||'#888'}">
+      <div class="card-top">
+        <div class="date-block"><div class="date-mon">${fmtMon(t.date)}</div><div class="date-day">${fmtDay(t.date)}</div></div>
+        <div class="card-info">
+          <div class="card-name">${t.name}</div>
+          <div class="card-meta">
+            <span>📍 ${t.city||'TBD'}, ${t.state||'??'}</span>
+            <span>📅 ${fmtDate(t.date)}${t.endDate&&t.endDate!==t.date?' – '+fmtDate(t.endDate):''}</span>
+            <span style="color:${COLORS[t.association]||'#888'}">● ${t.association}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <div class="age-tags">${(t.ages||[]).map(a=>`<span class="age-tag">${a}</span>`).join('')}</div>
+        <div class="fee-pill">${t.fee?'$'+t.fee:'TBD'}</div>
+        <div class="card-actions">
+          <button class="star-btn ${favorites.has(t.id)?'saved':''}" onclick="toggleFav('${t.id}')">${favorites.has(t.id)?'★':'☆'}</button>
+          ${t.link?`<a href="${t.link}" target="_blank" class="reg-btn" style="background:${COLORS[t.association]||'#444'}">Register ↗</a>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderMap(filtered){
+  const byState={};
+  filtered.forEach(t=>{if(t.state&&t.state!=='TBD'){if(!byState[t.state])byState[t.state]=[];byState[t.state].push(t);}});
+  const svg=document.getElementById('usa-map');
+  svg.innerHTML=Object.keys(STATE_POS).map(s=>{
+    const p=STATE_POS[s],active=byState[s]?.length>0,count=active?byState[s].length:0;
+    const color=active?(count===1?COLORS[byState[s][0].association]||'#c9a84c':'#c9a84c'):'rgba(255,255,255,0.06)';
+    const badge=active&&count>1?`<circle cx="${p.x+11}" cy="${p.y-11}" r="9" fill="#e02424" stroke="#0d1b2a" stroke-width="1.5"/><text x="${p.x+11}" y="${p.y-11}" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="white" font-weight="bold" font-family="sans-serif">${count}</text>`:'';
+    const h=active?`onclick="tapState('${s}')" onmouseenter="showTip('${s}')" onmouseleave="hideTip()"` :'';
+    return`<g style="cursor:${active?'pointer':'default'}" ${h}><circle cx="${p.x}" cy="${p.y}" r="${active?15:11}" fill="${color}" stroke="${active?'#0d1b2a':'rgba(255,255,255,0.12)'}" stroke-width="1.5" opacity="${active?1:0.6}"/><text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" font-size="${active?8:7}" fill="${active?'#fff':'#556677'}" font-weight="${active?'bold':'normal'}" font-family="sans-serif" style="pointer-events:none">${s}</text>${badge}</g>`;
+  }).join('');
+  window._byState=byState;
+  const sb=document.getElementById('map-sidebar');
+  if(!filtered.length){sb.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);font-family:sans-serif;font-size:13px">No tournaments match filters.</div>';return;}
+  sb.innerHTML=`<div style="font-family:sans-serif;font-size:11px;color:var(--muted);margin-bottom:6px">${filtered.length} results</div>`+filtered.map(t=>`
+    <div class="mini-card" style="border-left:3px solid ${COLORS[t.association]||'#888'}">
+      <div class="mini-name">${t.name}</div>
+      <div class="mini-meta">${t.city||'TBD'}, ${t.state||'??'} · ${fmtDate(t.date)}<br/>${(t.ages||[]).join(', ')||'Ages TBD'} · <span style="color:var(--gold)">${t.fee?'$'+t.fee:'TBD'}</span></div>
+      <div class="mini-actions">
+        <button class="mini-star ${favorites.has(t.id)?'saved':''}" onclick="toggleFav('${t.id}')">${favorites.has(t.id)?'★':'☆'}</button>
+        ${t.link?`<a href="${t.link}" target="_blank" class="mini-reg" style="background:${COLORS[t.association]||'#444'}">Register ↗</a>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function tapState(s){showTip(s);setTimeout(hideTip,3500);}
+function showTip(s){
+  const tours=(window._byState||{})[s];if(!tours)return;
+  const tt=document.getElementById('map-tooltip');
+  tt.innerHTML=`<div class="tooltip-title">📍 ${tours[0].city}, ${s}</div>`+tours.map(t=>`<div class="tooltip-item"><div class="tooltip-name">${t.name}</div><div class="tooltip-sub">${fmtDate(t.date)} · ${t.fee?'$'+t.fee:'TBD'} · ${(t.ages||[]).join(', ')}</div></div>`).join('');
+  tt.classList.add('visible');
+}
+function hideTip(){document.getElementById('map-tooltip').classList.remove('visible');}
+
+function toggleFav(id){
+  favorites.has(id)?favorites.delete(id):favorites.add(id);
+  saveFavorites();document.getElementById('fav-count').textContent=favorites.size;applyFilters();
+}
+function toggleFavFilter(){
+  showFavOnly=!showFavOnly;
+  document.getElementById('fav-filter-btn').classList.toggle('active',showFavOnly);
+  document.getElementById('nav-saved').classList.toggle('active',showFavOnly);
+  applyFilters();
+}
+function resetFilters(){
+  ['f-search','f-state','f-fee'].forEach(id=>document.getElementById(id).value='');
+  ['f-assoc','f-age'].forEach(id=>document.getElementById(id).value='All');
+  ['f-from','f-to'].forEach(id=>document.getElementById(id).value='');
+  showFavOnly=false;
+  document.getElementById('fav-filter-btn').classList.remove('active');
+  document.getElementById('nav-saved').classList.remove('active');
+  applyFilters();
+}
+function switchView(v){
+  currentView=v;
+  document.getElementById('list-view').style.display=v==='list'?'flex':'none';
+  document.getElementById('map-view').style.display=v==='map'?'flex':'none';
+  ['list','map'].forEach(id=>{
+    document.getElementById('btn-'+id)?.classList.toggle('active',v===id);
+    document.getElementById('nav-'+id)?.classList.toggle('active',v===id);
+  });
+  applyFilters();
+}
+
+fetchTournaments();
+setInterval(fetchTournaments,5*60*1000);
+</script>
+</body>
+</html>
